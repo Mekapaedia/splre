@@ -1,3 +1,4 @@
+```
 x[n:m:i](...):{cmds} turn input [nth to mth incrementing by i] into n tokens matching regex ...
 y[n:m:i](...):{cmds} turn input [nth to mth incrementing by i] into n tokens in between matching regex ...
 g[n:m:i](...):{cmds} if token in [n to m incrementing by i] matches regex ... run cmds
@@ -64,3 +65,4 @@ capture groups in regex strings:
   (name:?<!...) negative lookbehind
 capture groups in replacement strings:
   (name) capture group "name"
+```
