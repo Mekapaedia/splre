@@ -168,34 +168,46 @@ class SPLREVisitor(NodeVisitor):
     def generic_visit(self, _, visited_children):
         return visited_children
 
-grammar_text = ""
+def get_grammar(grammar_path="grammar.parg"):
+    with open(grammar_path, encoding="utf-8") as grammar_file:
+        grammar_text = grammar_file.read()
+    return Grammar(grammar_text)
 
-with open("grammar.parg", encoding="utf-8") as grammar_file:
-    grammar_text = grammar_file.read()
+def create_splre(splre_str, grammar=get_grammar(), visitor=SPLREVisitor(), print_grammar=False, print_parse_tree=False):
+    if print_grammar:
+        print(grammar)
+    parse_tree = grammar.parse(splre_str)
+    if print_parse_tree:
+        print(parse_tree)
+    return visitor.visit(parse_tree)
 
-grammar = Grammar(grammar_text)
-#print(grammar)
-visitor = SPLREVisitor()
+def run_splre(input_str, splre):
+    if len(input_str) < 1:
+        return []
+    returns = []
+    for reg_func in splre:
+        returns.append(reg_func([input_str])[0])
+    return returns
 
-try:
-    readline.read_history_file(".splre")
-except FileNotFoundError:
-    pass
-
-atexit.register(readline.write_history_file, ".splre")
-
-while True:
-    test_expr = input("regex str> ")
-    if len(test_expr) == 0:
-        break
+if __name__ == "__main__":
     try:
-        parse_tree = grammar.parse(test_expr)
-        #print(parse_tree)
-        result = visitor.visit(parse_tree)
-        if result:
-            test_str = input("test str? ")
-            if len(test_str) > 0:
-                for reg_func in result:
-                    print(reg_func([test_str])[0])
-    except ParseError as e:
-        traceback.print_exc()
+        readline.read_history_file(".splre")
+    except FileNotFoundError:
+        pass
+    atexit.register(readline.write_history_file, ".splre")
+
+    while True:
+        test_expr = input("regex str> ")
+        if len(test_expr) == 0:
+            break
+        try:
+            regex_funcs = create_splre(test_expr)
+            if regex_funcs:
+                test_str = input("test str? ")
+                results = run_splre(test_str, regex_funcs)
+                if results:
+                    for result in results:
+                        print(result, end='')
+                print("")
+        except ParseError as e:
+            traceback.print_exc()
